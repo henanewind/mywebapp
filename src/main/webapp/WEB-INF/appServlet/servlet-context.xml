@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc.xsd"
+       default-autowire="byName" default-lazy-init="true">
+
+    <mvc:annotation-driven />
+    <!--访问静态资源（假如没找到相应的控制器就去找静态资源，如果都没有则返回404）-->
+    <!--报告信息 org.springframework.web.servlet.PageNotFound noHandlerFound-->
+    <!--警告: No mapping found for HTTP request with URI [/] in DispatcherServlet with name 'rest'-->
+    <mvc:default-servlet-handler />
+
+    <context:component-scan base-package="spittr"/>
+
+    <!-- 需要加载com/fasterxml/jackson/core/JsonGenerator类-->
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order" value="1" />
+        <property name="favorPathExtension" value="true"/>
+        <property name="ignoreAcceptHeader" value="true" />
+        <property name="defaultContentType" value="application/json" />
+        <property name="mediaTypes">
+            <map>
+                <entry key="json" value="application/json" />
+                <entry key="xml" value="application/xml"/>
+                <entry key="html" value="text/html"/>
+            </map>
+        </property>
+        <property name="defaultViews">
+            <list>
+                <!-- JSON View -->
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+            </list>
+        </property>
+    </bean>
+    <!-- If no extension matched, use JSP view -->
+    <bean id="html" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="order" value="2"/>
+        <property name="prefix" value="/"></property>
+        <property name="suffix" value=".html"/>
+        <property name="contentType" value="text/html"></property>
+    </bean>
+
+    <bean id="jsp" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="order" value="3"/>
+        <property name="prefix" value="/"></property>
+        <property name="suffix" value=".jsp"/>
+        <property name="contentType" value="text/html"></property>
+    </bean>
+
+    <bean id="requestFactory" class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+        <property name="readTimeout" value="10000"/>
+        <property name="connectTimeout" value="5000"/>
+    </bean>
+
+    <!-- Spring Rest Client Program -->
+    <bean name="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <constructor-arg ref="requestFactory"/>
+    </bean>
+
+    <import resource="classpath*:spring/provider-context.xml"/>
+</beans>

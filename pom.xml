@@ -85,7 +85,6 @@
             <version>1.4</version>
         </dependency>
 
-
     </dependencies>
     <pluginRepositories>
         <pluginRepository>
